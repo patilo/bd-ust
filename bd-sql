@@ -1,0 +1,150 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema db-ust
+-- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `db-ust` ;
+
+-- -----------------------------------------------------
+-- Schema db-ust
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `db-ust` DEFAULT CHARACTER SET utf8 ;
+USE `db-ust` ;
+
+-- -----------------------------------------------------
+-- Table `db-ust`.`computadores`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db-ust`.`computadores` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `tipo` VARCHAR(45) NOT NULL,
+  `marca` VARCHAR(45) NOT NULL,
+  `estado` VARCHAR(45) NOT NULL,
+  `cargo` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `db-ust`.`proyectores`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db-ust`.`proyectores` (
+  `id` INT NOT NULL,
+  `marca` VARCHAR(45) NOT NULL,
+  `cargo` VARCHAR(45) NOT NULL,
+  `estado` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `db-ust`.`salas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db-ust`.`salas` (
+  `numero` INT NOT NULL,
+  `ubicacion` VARCHAR(45) NOT NULL,
+  `observacion` VARCHAR(45) NOT NULL,
+  `cargo` VARCHAR(45) NOT NULL,
+  `computadores_id` INT NOT NULL,
+  `proyectores_id` INT NOT NULL,
+  PRIMARY KEY (`numero`, `computadores_id`, `proyectores_id`),
+  INDEX `fk_salas_computadores1_idx` (`computadores_id` ASC),
+  INDEX `fk_salas_proyectores1_idx` (`proyectores_id` ASC),
+  CONSTRAINT `fk_salas_computadores1`
+    FOREIGN KEY (`computadores_id`)
+    REFERENCES `db-ust`.`computadores` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_salas_proyectores1`
+    FOREIGN KEY (`proyectores_id`)
+    REFERENCES `db-ust`.`proyectores` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `db-ust`.`informacion`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db-ust`.`informacion` (
+  `salas_numero` INT NOT NULL,
+  `salas_computadores_id` INT NOT NULL,
+  `salas_proyectores_id` INT NOT NULL,
+  PRIMARY KEY (`salas_numero`, `salas_computadores_id`, `salas_proyectores_id`),
+  CONSTRAINT `fk_informacion_salas1`
+    FOREIGN KEY (`salas_numero` , `salas_computadores_id` , `salas_proyectores_id`)
+    REFERENCES `db-ust`.`salas` (`numero` , `computadores_id` , `proyectores_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `db-ust`.`impresoras`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db-ust`.`impresoras` (
+  `id` INT NOT NULL,
+  `marca` VARCHAR(45) NOT NULL,
+  `ubicacion` VARCHAR(45) NOT NULL,
+  `cargo` VARCHAR(45) NOT NULL,
+  `estado` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `db-ust`.`inventario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db-ust`.`inventario` (
+  `idinventario` INT NOT NULL,
+  `fecha` DATE NOT NULL,
+  `computadores_id` INT NOT NULL,
+  `impresoras_id` INT NOT NULL,
+  `proyectores_id` INT NOT NULL,
+  PRIMARY KEY (`idinventario`, `computadores_id`, `impresoras_id`, `proyectores_id`),
+  INDEX `fk_inventario_computadores1_idx` (`computadores_id` ASC),
+  INDEX `fk_inventario_impresoras1_idx` (`impresoras_id` ASC),
+  INDEX `fk_inventario_proyectores1_idx` (`proyectores_id` ASC),
+  CONSTRAINT `fk_inventario_computadores1`
+    FOREIGN KEY (`computadores_id`)
+    REFERENCES `db-ust`.`computadores` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_inventario_impresoras1`
+    FOREIGN KEY (`impresoras_id`)
+    REFERENCES `db-ust`.`impresoras` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_inventario_proyectores1`
+    FOREIGN KEY (`proyectores_id`)
+    REFERENCES `db-ust`.`proyectores` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `db-ust`.`usuarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db-ust`.`usuarios` (
+  `id` INT NOT NULL,
+  `correo` VARCHAR(45) NOT NULL,
+  `contra` VARCHAR(45) NOT NULL,
+  `inventario_idinventario` INT NOT NULL,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`, `inventario_idinventario`),
+  INDEX `fk_usuarios_inventario1_idx` (`inventario_idinventario` ASC),
+  CONSTRAINT `fk_usuarios_inventario1`
+    FOREIGN KEY (`inventario_idinventario`)
+    REFERENCES `db-ust`.`inventario` (`idinventario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
